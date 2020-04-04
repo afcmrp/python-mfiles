@@ -32,7 +32,6 @@ author = 'Climeon'
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx.ext.autosummary',
     'sphinx.ext.napoleon'
 ]
 
@@ -44,15 +43,7 @@ extensions = [
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_test.py']
 
-# Autodoc settings
-autodoc_default_options = {
-    'members': True
-}
-
 add_module_names = False # module.function vs function
-
-# Autosummary settings
-autosummary_generate = True
 
 # -- Options for HTML output -------------------------------------------------
 

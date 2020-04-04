@@ -1,0 +1,14 @@
+# Editor files
+.vscode/
+
+# Python generated files
+*.pyc
+.coverage
+__pycache__/
+.pytest_cache/
+htmlcov/
+dist/
+mfiles.egg-info/
+
+# Generated documents
+doc/*/

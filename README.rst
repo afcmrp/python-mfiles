@@ -1,6 +1,7 @@
 Introduction
 -------------
-Python wrapper around the M-Files API.
+Python wrapper around the M-Files API. Simple examples for how to use it can be
+found under ``examples/``.
 
 Install
 -------------
@@ -12,7 +13,8 @@ To use this library, install the python requirements:
     pip install mfiles
 
 
-You can also use Git to clone the repository from GitHub to install the latest development version:
+You can also use Git to clone the repository from GitHub to install the latest
+development version:
 
 ::
 

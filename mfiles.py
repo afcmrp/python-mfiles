@@ -1,12 +1,11 @@
 """Python wrapper around the M-Files API.
 
-Enables search, upload, download and creation of objects in M-Files vaults.
+Simplifies search, upload, download and creation of objects in M-Files vaults.
 When authentication is needed credentials are fetched from environment
 variables ``MFILES_USER`` and ``MFILES_PASS``. If they are not set the
 credentials are fetched from user input using ``input()`` and ``get_pass()``.
-To supply credentials programatically you can call the ``login()`` method with
-username and password before using the API, and all subsequent calls will be
-authenticated with the same token.
+To supply credentials programatically you can initialize the ``MFilesClient()``
+object with username and password.
 
 M-Files property IDs for all object types are abstracted, so you can upload a
 ``Document`` using ``upload_file()`` with ``object_type="Document"`` and
@@ -23,7 +22,7 @@ from os.path import splitext
 # External modules
 import requests
 
-# M-files vault info
+# M-files server info
 DEFAULT_URL = "http://localhost/m-files/REST/"
 
 # Default M-Files object for object creation
@@ -79,7 +78,7 @@ class MFilesClient():
     """M-Files client.
 
     Parameters:
-        api (str): API URL. Defaults to ``"http://localhost/m-files/REST/"``.
+        server (str): API URL. Defaults to ``"http://localhost/m-files/REST/"``
         user (str): User to login with. If not supplied it will be fetched
                     from environment variable ``MFILES_USER``, if not set
                     it will be fetched using ``input()``.
@@ -90,19 +89,19 @@ class MFilesClient():
     """
     # pylint: disable=too-many-public-methods
 
-    def __init__(self, api=DEFAULT_URL, user=None, password=None, vault=None):
+    def __init__(self, server=DEFAULT_URL, user=None, password=None, vault=None):
         self.user = user
         self.password = password
         self.vault = vault
-        self.api = ""
+        self.server = ""
         self.headers = {"X-Authentication": ""}
-        self.set_api(api)
+        self.set_server(server)
 
-    def set_api(self, api):
-        """Set the M-Files API URL."""
-        if api[-1] != "/":
-            api += "/"
-        self.api = api
+    def set_server(self, server):
+        """Set the M-Files server API URL."""
+        if server[-1] != "/":
+            server += "/"
+        self.server = server
         self.login()
 
     def set_user(self, user):
@@ -120,14 +119,14 @@ class MFilesClient():
         self.vault = vault
         self.login()
 
-    def login(self, api=None, user=None, password=None, vault=None):
+    def login(self, server=None, user=None, password=None, vault=None):
         """Logs in the user to M-Files.
 
         Logs in and prepares the authentication token, ready to be used in
         http request header as authentication.
 
         Parameters:
-            api (str): API URL.
+            server (str): API URL.
             user (str): User to login with. If not supplied it will be fetched
                         from environment variable ``MFILES_USER``, if not set
                         it will be fetched using ``input()``.
@@ -136,22 +135,22 @@ class MFilesClient():
                             if not set it will be fetched using ``getpass()``.
             vault (str): M-Files vault GUID to connect to.
         """
-        env_api = getenv("MFILES_URL")
+        env_server = getenv("MFILES_URL")
         env_user = getenv("MFILES_USER")
         env_pass = getenv("MFILES_PASS")
         env_vault = getenv("MFILES_VAULT")
         programmatic_user = user or self.user or env_user
         programmatic_pass = password or self.password or env_pass
-        self.api = api or self.api or env_api
+        self.server = server or self.server or env_server
         self.user = programmatic_user or input("M-Files mail: ")
         self.password = programmatic_pass or getpass("M-Files password: ")
         self.vault = vault or self.vault or env_vault
-        if not all([self.api, self.user, self.password, self.vault]):
+        if not all([self.server, self.user, self.password, self.vault]):
             return
         auth = json.dumps({"Username": self.user,
                            "Password": self.password,
                            "VaultGuid": self.vault})
-        request_url = self.api + "server/authenticationtokens"
+        request_url = self.server + "server/authenticationtokens"
         response = requests.post(request_url, data=auth)
         auth_token = json.loads(response.text)["Value"]
         self.headers = {"X-Authentication": auth_token}
@@ -170,7 +169,7 @@ class MFilesClient():
         """
         if endpoint[0] == "/":
             endpoint = endpoint[1:]
-        request_url = self.api + endpoint
+        request_url = self.server + endpoint
         response = requests.get(request_url, headers=self.headers)
         if response.status_code != 200:
             raise Exception(response.text)
@@ -191,7 +190,7 @@ class MFilesClient():
         """
         if endpoint[0] == "/":
             endpoint = endpoint[1:]
-        request_url = self.api + endpoint
+        request_url = self.server + endpoint
         response = requests.put(request_url, headers=self.headers, data=data)
         if response.status_code != 200:
             raise Exception(response.text)
@@ -212,7 +211,7 @@ class MFilesClient():
         """
         if endpoint[0] == "/":
             endpoint = endpoint[1:]
-        request_url = self.api + endpoint
+        request_url = self.server + endpoint
         response = requests.post(request_url, headers=self.headers, data=data)
         if response.status_code != 200:
             raise Exception(response.text)
@@ -403,9 +402,9 @@ class MFilesClient():
             object_type (str): Object type.
             object_class (str): Object class.
             extra_info (dict): Additional object information.
-            file_info (list): Eventual file information for object. List
-                            of dicts that must contain keys
-                            ``UploadID``, ``Title``, ``Extension``, ``Size``.
+            file_info (dict): Eventual file information for object. Dict
+                              that must contain keys ``UploadID``, ``Title``,
+                              ``Extension``, ``Size``.
 
         Raises:
             Exception: If the object can't be created.
@@ -503,7 +502,7 @@ class MFilesClient():
         """
         # pylint: disable=too-many-arguments
         request_url = "%sobjects/%s/%s/%s/files/%s/content" % \
-            (self.api, object_type, object_id, object_version, file_id)
+            (self.server, object_type, object_id, object_version, file_id)
         response = requests.get(request_url, headers=self.headers)
         if response.status_code != 200:
             raise Exception(response.text)
@@ -564,7 +563,7 @@ class MFilesClient():
             versions of the object. Use with caution.
         """
         request_url = "%sobjects/%s/%s/latest?allVersions=true" % \
-            (self.api, object_type, object_id)
+            (self.server, object_type, object_id)
         response = requests.delete(request_url, headers=self.headers)
         if response.status_code != 200:
             raise Exception(response.text)

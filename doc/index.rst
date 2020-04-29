@@ -1,8 +1,18 @@
-M-Files
+mfiles
 =======
 
-.. automodule:: mfiles.mfiles
-   :members:
+.. automodule:: mfiles
+
+Contents
+========
+
+.. toctree::
+   :maxdepth: 2
+
+   client
+   errors
+
+.. include:: ../README.rst
 
 Indices and tables
 ==================

@@ -1,5 +1,5 @@
 coverage==4.5.4
-pylint==2.4.3
+pylint==1.9.5
 pylint_runner==0.5.4
 pytest==5.2.2
 sphinx==2.3.1

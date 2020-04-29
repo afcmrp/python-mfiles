@@ -1,9 +1,9 @@
-coverage==4.5.4
-pylint==1.9.4
-pylint_runner==0.5.4
-pytest==4.6.9
+coverage
+pylint
+pylint_runner
+pytest
 sphinx==1.8.5
 sphinx_rtd_theme==0.4.3
 sphinxcontrib-napoleon==0.7
-tbump==6.0.7
+tbump
 -r requirements.txt

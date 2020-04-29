@@ -1,7 +1,7 @@
 M-Files
 =======
 
-.. automodule:: mfiles
+.. automodule:: mfiles.mfiles
    :members:
 
 Indices and tables

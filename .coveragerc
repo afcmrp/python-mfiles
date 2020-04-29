@@ -1,0 +1,17 @@
+[run]
+
+omit =
+    *__init__.py
+
+source = ./mfiles
+
+[report]
+
+show_missing = True
+
+#fail_under = 90
+
+exclude_lines =
+    if 0:
+    if __name__ == .__main__.:
+    pragma: no cover

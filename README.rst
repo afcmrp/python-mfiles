@@ -1,3 +1,5 @@
+.. include:: doc/badges.rst
+
 Introduction
 -------------
 Python wrapper around the M-Files API. Simple examples for how to use it can be

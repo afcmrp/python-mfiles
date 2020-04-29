@@ -1,8 +1,25 @@
-M-Files
 =======
+mfiles
+=======
+.. include:: badges.rst
 
-.. automodule:: mfiles.mfiles
-   :members:
+.. automodule:: mfiles
+
+Install via pip:
+
+::
+
+   pip install mfiles
+
+Contents
+========
+
+.. toctree::
+   :maxdepth: 2
+
+   client
+   errors
+   examples
 
 Indices and tables
 ==================

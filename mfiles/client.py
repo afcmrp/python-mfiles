@@ -1,15 +1,7 @@
-"""Python wrapper around the M-Files API.
+"""M-Files client methods.
 
-Simplifies search, upload, download and creation of objects in M-Files vaults.
-When authentication is needed credentials are fetched from environment
-variables ``MFILES_USER`` and ``MFILES_PASS``. If they are not set the
-credentials are fetched from user input using ``input()`` and ``get_pass()``.
-To supply credentials programatically you can initialize the ``MFilesClient()``
-object with username and password.
-
-M-Files property IDs for all object types are abstracted, so you can upload a
-``Document`` using ``upload_file()`` with ``object_type="Document"`` and
-correct IDs will be fetched from the server.
+For more information, see:
+https://developer.m-files.com/APIs/REST-API/Reference
 """
 
 # Standard modules
@@ -22,57 +14,13 @@ from os.path import splitext
 # External modules
 import requests
 
+# Internal modules
+from mfiles.definitions import DATATYPE, LOOKUP_DATATYPE, LOOKUP_DATATYPES, \
+    OBJ, OBJ_PROPERTY
+from mfiles.errors import MFilesException
+
 # M-files server info
 DEFAULT_URL = "http://localhost/m-files/REST/"
-
-# Default M-Files object for object creation
-OBJ = {
-    "PropertyValues": [
-        {
-            "PropertyDef": 0, # "Name" property ID
-            "TypedValue": {
-                "DataType": 1,
-                "Value": "" # Actual name goes here
-            }
-        },
-        {
-            "PropertyDef": 100, # "Class" property ID
-            "TypedValue": {
-                "DataType": 9,
-                "Lookup": {
-                    "Item": 0, # Class ID goes here
-                    "Version": -1
-                }
-            }
-        }
-    ]
-}
-
-# Property field of object
-OBJ_PROPERTY = {
-    "PropertyDef": 0, # Property ID
-    "TypedValue": {
-        "DataType": 0
-    }
-}
-
-# DataTypes
-# https://developer.m-files.com/APIs/REST-API/Reference/enumerations/mfdatatype/
-
-LOOKUP_DATATYPES = [9, 10]
-
-# Standard MFDataType
-DATATYPE = {
-    "Value": 0 # Datatype ID
-}
-
-# Lookup MFDataType
-LOOKUP_DATATYPE = {
-    "Lookup": {
-        "Item": "", # Custom datatype ID
-        "Version": -1
-    }
-}
 
 class MFilesClient():
     """M-Files client.
@@ -162,7 +110,7 @@ class MFilesClient():
             endpoint (str): Endpoint on form ``"path/to/endpoint"``.
 
         Raises:
-            Exception: If request returns status code != 200.
+            MFilesException: If request returns status code != 200.
 
         Returns:
             dict: Dictionary with request result.
@@ -172,7 +120,7 @@ class MFilesClient():
         request_url = self.server + endpoint
         response = requests.get(request_url, headers=self.headers)
         if response.status_code != 200:
-            raise Exception(response.text)
+            raise MFilesException(response.text)
         return response.json()
 
     def put(self, endpoint, data=None):
@@ -183,7 +131,7 @@ class MFilesClient():
             data (str): Data to use in PUT request.
 
         Raises:
-            Exception: If request returns status code != 200.
+            MFilesException: If request returns status code != 200.
 
         Returns:
             dict: Dictionary with request result.
@@ -193,7 +141,7 @@ class MFilesClient():
         request_url = self.server + endpoint
         response = requests.put(request_url, headers=self.headers, data=data)
         if response.status_code != 200:
-            raise Exception(response.text)
+            raise MFilesException(response.text)
         return response.json()
 
     def post(self, endpoint, data=None):
@@ -204,7 +152,7 @@ class MFilesClient():
             data (str): Data to use in POST request.
 
         Raises:
-            Exception: If request returns status code != 200.
+            MFilesException: If request returns status code != 200.
 
         Returns:
             dict: Dictionary with request result.
@@ -214,7 +162,7 @@ class MFilesClient():
         request_url = self.server + endpoint
         response = requests.post(request_url, headers=self.headers, data=data)
         if response.status_code != 200:
-            raise Exception(response.text)
+            raise MFilesException(response.text)
         return response.json()
 
     def quick_search(self, query):
@@ -285,7 +233,7 @@ class MFilesClient():
             owner_ids (list): ID of potential list owners.
 
         Raises:
-            Exception: If the value name can't be found in the list.
+            MFilesException: If the value name can't be found in the list.
 
         Returns:
             int: ID of value in value list.
@@ -296,7 +244,7 @@ class MFilesClient():
             correct_owner = item["OwnerID"] in owner_ids
             if same_name and correct_owner:
                 return item["ID"]
-        raise Exception("Option %s not recognized" % value_name)
+        raise MFilesException("Option %s not recognized" % value_name)
 
     def get_types(self, category="object"):
         """Get info for all types from a type category.
@@ -307,7 +255,7 @@ class MFilesClient():
                             ``"object"``.
 
         Raises:
-            Exception: If the category supplied doesn't exist.
+            MFilesException: If the category supplied doesn't exist.
 
         Returns:
             list: List of dicts with information about the types.
@@ -319,7 +267,7 @@ class MFilesClient():
         elif category == "property":
             types = self.properties()
         else:
-            raise Exception("Type name %s not recognized" % category)
+            raise MFilesException("Type name %s not recognized" % category)
         return types
 
     def get_info(self, name, category="object"):
@@ -332,7 +280,7 @@ class MFilesClient():
                             ``"object"``.
 
         Raises:
-            Exception: If the property name can't be found.
+            MFilesException: If the property name can't be found.
 
         Returns:
             dict: Dictionary with information about the type.
@@ -341,7 +289,7 @@ class MFilesClient():
         for type_info in types:
             if type_info["Name"] == name:
                 return type_info
-        raise Exception("Property %s could not be found in vault" % name)
+        raise MFilesException("Property %s could not be found in vault" % name)
 
     def get_info_id(self, type_id, category="object"):
         """Get general info of a type by id.
@@ -353,7 +301,7 @@ class MFilesClient():
                             ``"object"``.
 
         Raises:
-            Exception: If the property ID can't be found.
+            MFilesException: If the property ID can't be found.
 
         Returns:
             dict: Dictionary with information about the type.
@@ -362,7 +310,8 @@ class MFilesClient():
         for type_info in types:
             if type_info["ID"] == type_id:
                 return type_info
-        raise Exception("Property ID %s could not be found in vault" % type_id)
+        raise MFilesException("Property ID %s could not be found in vault" % \
+                              type_id)
 
     def get_property(self, property_name, owners=None, property_value=None):
         """Get a certain property built as M-Files expects it.
@@ -407,7 +356,7 @@ class MFilesClient():
                               ``Extension``, ``Size``.
 
         Raises:
-            Exception: If the object can't be created.
+            MFilesException: If the object can't be created.
 
         Returns:
             dict: Dictionary with object information.
@@ -458,7 +407,7 @@ class MFilesClient():
             extra_info (dict): Additional object information.
 
         Raises:
-            Exception: If the file can't be uploaded.
+            MFilesException: If the file can't be uploaded.
 
         Returns:
             dict: Dictionary with API request result.
@@ -495,7 +444,7 @@ class MFilesClient():
             local_path (str): Path to download file to.
 
         Raises:
-            Exception: If the file can't be downloaded.
+            MFilesException: If the file can't be downloaded.
 
         Returns:
             bool: True if file is found and downloaded successfully.
@@ -505,7 +454,7 @@ class MFilesClient():
             (self.server, object_type, object_id, object_version, file_id)
         response = requests.get(request_url, headers=self.headers)
         if response.status_code != 200:
-            raise Exception(response.text)
+            raise MFilesException(response.text)
         with open(local_path, mode="wb+") as file_stream:
             file_stream.write(response.content)
         return True
@@ -566,5 +515,5 @@ class MFilesClient():
             (self.server, object_type, object_id)
         response = requests.delete(request_url, headers=self.headers)
         if response.status_code != 200:
-            raise Exception(response.text)
+            raise MFilesException(response.text)
         return response

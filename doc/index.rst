@@ -1,3 +1,4 @@
+=======
 mfiles
 =======
 
@@ -11,6 +12,7 @@ Contents
 
    client
    errors
+   examples
 
 .. include:: ../README.rst
 

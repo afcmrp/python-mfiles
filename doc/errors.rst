@@ -1,4 +1,4 @@
-errors
+Errors
 ======
 
 .. automodule:: mfiles.errors

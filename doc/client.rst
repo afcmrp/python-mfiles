@@ -1,4 +1,4 @@
-client
+Client
 ======
 
 .. automodule:: mfiles.client

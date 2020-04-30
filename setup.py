@@ -11,7 +11,7 @@ Documentation: https://mfiles.readthedocs.io/en/latest/
 setup(
     name='mfiles',
     packages=find_packages(),
-    version='0.5.0',
+    version='0.5.1',
     license='MIT',
     description='M-Files API wrapper',
     long_description=PYPI_DESCRIPTION,

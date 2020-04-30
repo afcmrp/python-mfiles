@@ -1,9 +1,14 @@
+=============
+python-mfiles
+=============
+
 .. include:: doc/badges.rst
 
 Introduction
 -------------
 Python wrapper around the M-Files API. Simple examples for how to use it can be
-found under ``examples/``.
+found under ``examples/``. Documentation can be found at
+https://mfiles.readthedocs.io/en/latest/
 
 Install
 -------------
@@ -20,8 +25,8 @@ development version:
 
 ::
 
-    git clone https://github.com/afcmrp/mfiles.git
-    cd mfiles
+    git clone https://github.com/afcmrp/python-mfiles.git
+    cd python-mfiles
     pip install .
 
 Development

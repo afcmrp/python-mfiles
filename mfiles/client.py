@@ -224,13 +224,13 @@ class MFilesClient():
         response = self.get(endpoint)
         return response
 
-    def get_value_id(self, value_name, list_id, owner_ids):
+    def get_value_id(self, value_name, list_id, owner_ids=None):
         """Get the ID of a specific value in a specific value list.
 
         Parameters:
             value_name (str): Name of the value list option to look for.
             list_id (int): ID of the list to look in.
-            owner_ids (list): ID of potential list owners.
+            owner_ids (list): Optional. IDs of potential list owners.
 
         Raises:
             MFilesException: If the value name can't be found in the list.
@@ -241,7 +241,7 @@ class MFilesClient():
         list_items = self.value_list_items(list_id)
         for item in list_items["Items"]:
             same_name = item["Name"].lower() == value_name.lower()
-            correct_owner = item["OwnerID"] in owner_ids
+            correct_owner = owner_ids is None or item["OwnerID"] in owner_ids
             if same_name and correct_owner:
                 return item["ID"]
         raise MFilesException("Option %s not recognized" % value_name)

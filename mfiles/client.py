@@ -274,7 +274,7 @@ class MFilesClient():
         """Get general info of a type by name.
 
         Parameters:
-            name (str): Name of type to get info from. E.g. ``"Document"``.
+            name (str): Name of type to get info from.
             category (str): Type name. Can be any of ``"object"``,
                             ``"class"``, ``"property"``. Defaults to
                             ``"object"``.
@@ -313,7 +313,21 @@ class MFilesClient():
         raise MFilesException("Property ID %s could not be found in vault" % \
                               type_id)
 
-    def get_property(self, property_name, owners=None, property_value=None):
+    def translate_name(self, name, category="object"):
+        """Translate a name into its ID as recognized by the server.
+
+        Parameters:
+            name (str): Name to translate.
+            category (str): Type category. Can be any of ``"object"``,
+                            ``"class"``, ``"property"``. Defaults to
+                            ``"object"``.
+
+        Returns:
+            int: ID of ``name``.
+        """
+        return self.get_info(name, category)["ID"]
+
+    def get_property(self, property_name, owners, property_value):
         """Get a certain property built as M-Files expects it.
 
         Parameters:
@@ -341,15 +355,19 @@ class MFilesClient():
         prop["TypedValue"].update(datatype)
         return prop
 
-    def create_object(self, name, object_type="Document",
-                      object_class="Document", extra_info=None,
-                      file_info=None):
+    def create_object(self, name, object_type=0, object_class=0,
+                      extra_info=None, file_info=None):
         """Create M-Files object and upload it to the vault.
 
         Parameters:
             name (str): Name of new object.
-            object_type (str): Object type.
-            object_class (str): Object class.
+            object_type (str, int): Object type. If integer, the type will
+                                    not be attempted to be translated. If
+                                    string, the type will be transated into
+                                    the property ID the server expects for the
+                                    given type.
+            object_class (str, int): Object class, same translation principle
+                                     as for object_type.
             extra_info (dict): Additional object information.
             file_info (dict): Eventual file information for object. Dict
                               that must contain keys ``UploadID``, ``Title``,
@@ -364,22 +382,24 @@ class MFilesClient():
         # pylint: disable=too-many-arguments
         extra_info = extra_info or {}
         file_info = file_info or []
-        obj_type = self.get_info(object_type, "object")["ID"]
-        class_id = self.get_info(object_class, "class")["ID"]
+        if isinstance(object_type, str):
+            object_type = self.translate_name(object_type, "object")
+        if isinstance(object_class, str):
+            object_class = self.translate_name(object_class, "class")
         # Start building object
         obj = deepcopy(OBJ)
         # Set mandatory info
         obj["PropertyValues"][0]["TypedValue"]["Value"] = name
-        obj["PropertyValues"][1]["TypedValue"]["Lookup"]["Item"] = class_id
+        obj["PropertyValues"][1]["TypedValue"]["Lookup"]["Item"] = object_class
         # Add any additionally supplied properties
-        property_names = extra_info.keys()
-        for property_name in property_names:
-            prop = self.get_property(property_name, [class_id, obj_type],
+        for property_name in extra_info:
+            owners = [object_class, object_type]
+            prop = self.get_property(property_name, owners,
                                      extra_info[property_name])
             obj["PropertyValues"].append(prop)
         obj["Files"] = [file_info]
         data = json.dumps(obj)
-        endpoint = "objects/%s" % obj_type
+        endpoint = "objects/%s" % object_type
         return self.post(endpoint, data)
 
     def check_out(self, object_id, object_type=0):
@@ -396,14 +416,19 @@ class MFilesClient():
             (object_type, object_id, object_version)
         return self.put(endpoint, data)
 
-    def upload_file(self, file_path, object_type="Document",
-                    object_class="Document", extra_info=None):
+    def upload_file(self, file_path, object_type=0, object_class=0,
+                    extra_info=None):
         """Upload a file to M-Files.
 
         Parameters:
             file_path (str): Path to file to upload.
-            object_type (str): Object type.
-            object_class (str): Object class.
+            object_type (str, int): Object type. If integer, the type will
+                                    not be attempted to be translated. If
+                                    string, the type will be transated into
+                                    the property ID the server expects for the
+                                    given type.
+            object_class (str, int): Object class, same translation principle
+                                     as for object_type.
             extra_info (dict): Additional object information.
 
         Raises:

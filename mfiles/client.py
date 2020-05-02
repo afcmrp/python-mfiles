@@ -230,7 +230,7 @@ class MFilesClient():
         Parameters:
             value_name (str): Name of the value list option to look for.
             list_id (int): ID of the list to look in.
-            owner_ids (list): ID of potential list owners.
+            owner_ids (list): IDs of potential list owners.
 
         Raises:
             MFilesException: If the value name can't be found in the list.
@@ -240,11 +240,11 @@ class MFilesClient():
         """
         list_items = self.value_list_items(list_id)
         for item in list_items["Items"]:
-            same_name = item["Name"].lower() == value_name.lower()
-            correct_owner = item["OwnerID"] in owner_ids
-            if same_name and correct_owner:
+            same_name = item["Name"] == value_name
+            ok_owner = not item["HasOwner"] or item["OwnerID"] in owner_ids
+            if same_name and ok_owner:
                 return item["ID"]
-        raise MFilesException("Option %s not recognized" % value_name)
+        raise MFilesException("Value name %s not recognized" % value_name)
 
     def get_types(self, category="object"):
         """Get info for all types from a type category.

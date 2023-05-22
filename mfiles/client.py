@@ -100,7 +100,8 @@ class MFilesClient():
                            "VaultGuid": self.vault})
         request_url = self.server + "server/authenticationtokens"
         response = requests.post(request_url, data=auth)
-        print(response)
+        print(response.text)
+        print(response.text,file=sys.stderr)
         auth_token = json.loads(response.text)["Value"]
         self.headers = {"X-Authentication": auth_token}
 

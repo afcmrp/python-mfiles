@@ -99,8 +99,8 @@ class MFilesClient():
                            "Password": self.password,
                            "VaultGuid": self.vault})
         request_url = self.server + "server/authenticationtokens"
-        session = requests.Session()
-        response = session.post(request_url, data=auth)
+        self.request = requests.Session()
+        response = self.request.post(request_url, data=auth)
         print(response.text)
         print(session.cookies)
         auth_token = json.loads(response.text)["Value"]
@@ -121,7 +121,7 @@ class MFilesClient():
         if endpoint[0] == "/":
             endpoint = endpoint[1:]
         request_url = self.server + endpoint
-        response = requests.get(request_url, headers=self.headers)
+        response = self.request.get(request_url, headers=self.headers)
         if response.status_code != 200:
             raise MFilesException(response.text)
         return response.json()
@@ -142,7 +142,7 @@ class MFilesClient():
         if endpoint[0] == "/":
             endpoint = endpoint[1:]
         request_url = self.server + endpoint
-        response = requests.put(request_url, headers=self.headers, data=data)
+        response = self.request.put(request_url, headers=self.headers, data=data)
         if response.status_code != 200:
             raise MFilesException(response.text)
         return response.json()
@@ -163,7 +163,7 @@ class MFilesClient():
         if endpoint[0] == "/":
             endpoint = endpoint[1:]
         request_url = self.server + endpoint
-        response = requests.post(request_url, headers=self.headers, data=data)
+        response = self.request.post(request_url, headers=self.headers, data=data)
         if response.status_code != 200:
             raise MFilesException(response.text)
         return response.json()
@@ -480,7 +480,7 @@ class MFilesClient():
         # pylint: disable=too-many-arguments
         request_url = "%sobjects/%s/%s/%s/files/%s/content" % \
             (self.server, object_type, object_id, object_version, file_id)
-        response = requests.get(request_url, headers=self.headers)
+        response = self.request.get(request_url, headers=self.headers)
         if response.status_code != 200:
             raise MFilesException(response.text)
         with open(local_path, mode="wb+") as file_stream:
@@ -541,7 +541,7 @@ class MFilesClient():
         """
         request_url = "%sobjects/%s/%s/latest?allVersions=true" % \
             (self.server, object_type, object_id)
-        response = requests.delete(request_url, headers=self.headers)
+        response = self.request.delete(request_url, headers=self.headers)
         if response.status_code != 200:
             raise MFilesException(response.text)
         return response

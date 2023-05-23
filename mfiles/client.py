@@ -44,9 +44,9 @@ class MFilesClient():
         self.server = ""
         self.headers = {"X-Authentication": ""}
         # need before set_server
-        self.session=requests.Session()
+        self.session = requests.Session()
         self.set_server(server)
-        
+
     def set_server(self, server):
         """Set the M-Files server API URL."""
         if server[-1] != "/":

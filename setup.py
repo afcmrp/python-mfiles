@@ -19,7 +19,6 @@ setup(
     author_email='emil.hjelm@climeon.com',
     url='https://github.com/afcmrp/python-mfiles',
     keywords=['M-Files', 'mfiles', 'REST', 'API'],
-    python_requires='!=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*',
     install_requires=[
         'requests',
     ],

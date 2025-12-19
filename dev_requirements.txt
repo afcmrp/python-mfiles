@@ -2,9 +2,9 @@ coverage
 pylint
 pylint_runner
 pytest
-sphinx==1.8.5
-sphinx_rtd_theme==0.4.3
-sphinxcontrib-napoleon==0.7
+sphinx
+sphinx_rtd_theme
+sphinxcontrib-napoleon
 tbump
 wheel
 -r requirements.txt

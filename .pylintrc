@@ -6,3 +6,6 @@ ignore=examples,.venv
 
 # Use multiple processes to speed up Pylint.
 jobs=4
+
+# Disabled errors
+disable=consider-using-f-string

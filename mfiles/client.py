@@ -381,7 +381,7 @@ class MFilesClient():
         Returns:
             dict: Dictionary with object information.
         """
-        # pylint: disable=too-many-arguments
+        # pylint: disable=too-many-arguments,too-many-positional-arguments
         extra_info = extra_info or {}
         file_info = file_info or []
         if isinstance(object_type, str):
@@ -476,7 +476,7 @@ class MFilesClient():
         Returns:
             bool: True if file is found and downloaded successfully.
         """
-        # pylint: disable=too-many-arguments
+        # pylint: disable=too-many-arguments,too-many-positional-arguments
         request_url = "%sobjects/%s/%s/%s/files/%s/content" % \
             (self.server, object_type, object_id, object_version, file_id)
         response = self.session.get(request_url, headers=self.headers)

@@ -2,6 +2,7 @@ coverage
 pylint
 pylint_runner
 pytest
+setuptools
 sphinx
 sphinx_rtd_theme
 sphinxcontrib-napoleon

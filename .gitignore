@@ -9,7 +9,7 @@ __pycache__/
 htmlcov/
 dist/
 mfiles.egg-info/
-.env/
+.venv/
 
 # Generated documents
 doc/*/

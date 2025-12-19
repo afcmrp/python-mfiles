@@ -140,8 +140,8 @@ class MFilesClient():
         """
         if endpoint[0] == "/":
             endpoint = endpoint[1:]
-        request_url = self.server + endpoint
-        response = self.session.put(request_url, headers=self.headers, data=data)
+        request_url = self.server + endpoint + "?_method=PUT"
+        response = self.session.post(request_url, headers=self.headers, data=data)
         if response.status_code != 200:
             raise MFilesException(response.text)
         return response.json()
@@ -381,7 +381,7 @@ class MFilesClient():
         Returns:
             dict: Dictionary with object information.
         """
-        # pylint: disable=too-many-arguments
+        # pylint: disable=too-many-arguments,too-many-positional-arguments
         extra_info = extra_info or {}
         file_info = file_info or []
         if isinstance(object_type, str):
@@ -404,14 +404,14 @@ class MFilesClient():
         endpoint = "objects/%s" % object_type
         return self.post(endpoint, data)
 
-    def check_out(self, object_id, object_type=0):
+    def check_out(self, object_id, object_version="latest", object_type=0):
         """Check out an object from M-Files."""
         data = json.dumps({"Value": "2"}) # Checked out by me
-        endpoint = "objects/%s/%s/latest/checkedout" % \
-            (object_type, object_id)
+        endpoint = "objects/%s/%s/%s/checkedout" % \
+            (object_type, object_id, object_version)
         return self.put(endpoint, data)
 
-    def check_in(self, object_id, object_version, object_type=0):
+    def check_in(self, object_id, object_version="latest", object_type=0):
         """Check in an object to M-Files."""
         data = json.dumps({"Value": "0"}) # Checked in
         endpoint = "objects/%s/%s/%s/checkedout" % \
@@ -476,7 +476,7 @@ class MFilesClient():
         Returns:
             bool: True if file is found and downloaded successfully.
         """
-        # pylint: disable=too-many-arguments
+        # pylint: disable=too-many-arguments,too-many-positional-arguments
         request_url = "%sobjects/%s/%s/%s/files/%s/content" % \
             (self.server, object_type, object_id, object_version, file_id)
         response = self.session.get(request_url, headers=self.headers)
